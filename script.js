@@ -19,7 +19,6 @@ let pendingImages = [];
 let pendingVideoFile = null;
 let pendingVideoData = null;
 let authToken = localStorage.getItem('kbs_token') || null;
-let sliderIntervals = {};
 
 // ===== LIGHTBOX STATE =====
 let lightboxImages = [];
@@ -134,6 +133,7 @@ async function addProductToServer(productData) {
         showToast('✅ تم إضافة المنتج بنجاح!', 'success');
         return res.data;
     } catch (err) {
+        console.error('Add product error:', err);
         showToast('⚠️ فشل إضافة المنتج: ' + (err.response?.data?.error || err.message), 'error');
         throw err;
     }
@@ -193,66 +193,68 @@ function logoutUserLocally() {
     showSection('home');
     if (navLinks) navLinks.classList.remove('mobile-open');
     document.querySelector('.mobile-menu')?.classList.remove('active');
-    
-    Object.keys(sliderIntervals).forEach(key => {
-        clearInterval(sliderIntervals[key]);
-        delete sliderIntervals[key];
-    });
 }
 
 // ============================================================
 // VIDEO UPLOAD - رفع فيديو محلي
 // ============================================================
-document.getElementById('productVideoInput').addEventListener('change', function(e) {
-    const file = e.target.files[0];
-    const previewDiv = document.getElementById('videoPreview');
-    previewDiv.innerHTML = '';
-    pendingVideoFile = null;
-    pendingVideoData = null;
+const videoInput = document.getElementById('productVideoInput');
+if (videoInput) {
+    videoInput.addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        const previewDiv = document.getElementById('videoPreview');
+        previewDiv.innerHTML = '';
+        pendingVideoFile = null;
+        pendingVideoData = null;
 
-    if (!file) {
-        previewDiv.innerHTML = `<span style="color:#888;font-size:14px;">📹 لم يتم اختيار فيديو</span>`;
-        return;
-    }
+        if (!file) {
+            previewDiv.innerHTML = `<span style="color:#888;font-size:14px;">📹 لم يتم اختيار فيديو</span>`;
+            return;
+        }
 
-    const validTypes = ['video/mp4', 'video/webm', 'video/avi', 'video/quicktime', 'video/x-msvideo'];
-    if (!validTypes.includes(file.type)) {
-        previewDiv.innerHTML = `<span style="color:#ef4444;font-size:14px;">⚠️ يرجى اختيار ملف فيديو صحيح (MP4, WebM, AVI)</span>`;
-        return;
-    }
+        const validTypes = ['video/mp4', 'video/webm', 'video/avi', 'video/quicktime', 'video/x-msvideo'];
+        if (!validTypes.includes(file.type)) {
+            previewDiv.innerHTML = `<span style="color:#ef4444;font-size:14px;">⚠️ يرجى اختيار ملف فيديو صحيح (MP4, WebM, AVI)</span>`;
+            return;
+        }
 
-    if (file.size > 100 * 1024 * 1024) {
-        previewDiv.innerHTML = `<span style="color:#ef4444;font-size:14px;">⚠️ حجم الفيديو كبير جداً (الحد الأقصى 100MB)</span>`;
-        return;
-    }
+        if (file.size > 100 * 1024 * 1024) {
+            previewDiv.innerHTML = `<span style="color:#ef4444;font-size:14px;">⚠️ حجم الفيديو كبير جداً (الحد الأقصى 100MB)</span>`;
+            return;
+        }
 
-    const reader = new FileReader();
-    reader.onload = function(event) {
-        pendingVideoData = event.target.result;
-        pendingVideoFile = file;
-        
-        previewDiv.innerHTML = `
-            <div style="position:relative;padding-bottom:56.25%;height:0;border-radius:10px;overflow:hidden;border:2px solid #ff6a00;background:#000;">
-                <video controls style="position:absolute;top:0;left:0;width:100%;height:100%;">
-                    <source src="${pendingVideoData}" type="${file.type}">
-                    متصفحك لا يدعم تشغيل الفيديو
-                </video>
-            </div>
-            <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 4px;">
-                <span style="color:#22c55e;font-size:13px;">✅ ${file.name} (${(file.size / 1024 / 1024).toFixed(2)} MB)</span>
-                <button onclick="clearVideo()" style="background:#ef4444;color:#fff;border:none;border-radius:6px;padding:4px 12px;cursor:pointer;font-size:12px;">
-                    <i class="fas fa-times"></i> إزالة
-                </button>
-            </div>
-        `;
-        showToast(`✅ تم تحميل الفيديو: ${file.name}`, 'success');
-    };
-    reader.readAsDataURL(file);
-});
+        const reader = new FileReader();
+        reader.onload = function(event) {
+            pendingVideoData = event.target.result;
+            pendingVideoFile = file;
+            
+            previewDiv.innerHTML = `
+                <div style="position:relative;padding-bottom:56.25%;height:0;border-radius:10px;overflow:hidden;border:2px solid #ff6a00;background:#000;">
+                    <video controls style="position:absolute;top:0;left:0;width:100%;height:100%;">
+                        <source src="${pendingVideoData}" type="${file.type}">
+                        متصفحك لا يدعم تشغيل الفيديو
+                    </video>
+                </div>
+                <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 4px;">
+                    <span style="color:#22c55e;font-size:13px;">✅ ${file.name} (${(file.size / 1024 / 1024).toFixed(2)} MB)</span>
+                    <button onclick="clearVideo()" style="background:#ef4444;color:#fff;border:none;border-radius:6px;padding:4px 12px;cursor:pointer;font-size:12px;">
+                        <i class="fas fa-times"></i> إزالة
+                    </button>
+                </div>
+            `;
+            showToast(`✅ تم تحميل الفيديو: ${file.name}`, 'success');
+        };
+        reader.readAsDataURL(file);
+    });
+}
 
 function clearVideo() {
-    document.getElementById('productVideoInput').value = '';
-    document.getElementById('videoPreview').innerHTML = `<span style="color:#888;font-size:14px;">📹 لم يتم اختيار فيديو</span>`;
+    const videoInput = document.getElementById('productVideoInput');
+    if (videoInput) videoInput.value = '';
+    const previewDiv = document.getElementById('videoPreview');
+    if (previewDiv) {
+        previewDiv.innerHTML = `<span style="color:#888;font-size:14px;">📹 لم يتم اختيار فيديو</span>`;
+    }
     pendingVideoFile = null;
     pendingVideoData = null;
     showToast('🗑️ تم إزالة الفيديو', 'success');
@@ -276,6 +278,8 @@ function openLightbox(productId, imageIndex) {
     const img = document.getElementById('lightboxImg');
     const counter = document.getElementById('lightboxCounter');
 
+    if (!lightbox || !img || !counter) return;
+
     img.src = images[imageIndex];
     counter.textContent = `${imageIndex + 1} / ${images.length}`;
     lightbox.classList.add('active');
@@ -283,7 +287,8 @@ function openLightbox(productId, imageIndex) {
 }
 
 function closeLightbox() {
-    document.getElementById('lightbox').classList.remove('active');
+    const lightbox = document.getElementById('lightbox');
+    if (lightbox) lightbox.classList.remove('active');
     document.body.style.overflow = '';
 }
 
@@ -292,14 +297,16 @@ function changeLightboxImage(direction) {
     if (total === 0) return;
 
     lightboxCurrentIndex = (lightboxCurrentIndex + direction + total) % total;
-    document.getElementById('lightboxImg').src = lightboxImages[lightboxCurrentIndex];
-    document.getElementById('lightboxCounter').textContent = `${lightboxCurrentIndex + 1} / ${total}`;
+    const img = document.getElementById('lightboxImg');
+    const counter = document.getElementById('lightboxCounter');
+    if (img) img.src = lightboxImages[lightboxCurrentIndex];
+    if (counter) counter.textContent = `${lightboxCurrentIndex + 1} / ${total}`;
 }
 
 // Keyboard support for lightbox
 document.addEventListener('keydown', function(e) {
     const lightbox = document.getElementById('lightbox');
-    if (!lightbox.classList.contains('active')) return;
+    if (!lightbox || !lightbox.classList.contains('active')) return;
 
     if (e.key === 'Escape') closeLightbox();
     if (e.key === 'ArrowRight') changeLightboxImage(1);
@@ -307,80 +314,11 @@ document.addEventListener('keydown', function(e) {
 });
 
 // ============================================================
-// PRODUCT SLIDER FUNCTIONS
-// ============================================================
-
-function initSlider(productId, totalSlides, hasVideo = false) {
-    if (sliderIntervals[productId]) {
-        clearInterval(sliderIntervals[productId]);
-        delete sliderIntervals[productId];
-    }
-
-    const slideCount = totalSlides + (hasVideo ? 1 : 0);
-    if (slideCount <= 1) return;
-
-    let currentSlide = 0;
-    const slider = document.getElementById(`slider-${productId}`);
-    const dots = document.querySelectorAll(`#slider-${productId} .slider-dot`);
-    const prevBtn = document.getElementById(`prev-${productId}`);
-    const nextBtn = document.getElementById(`next-${productId}`);
-
-    function goToSlide(index) {
-        if (!slider) return;
-        const slides = slider.querySelectorAll('.product-slide');
-        if (slides.length === 0) return;
-        
-        if (index >= slides.length) index = 0;
-        if (index < 0) index = slides.length - 1;
-        currentSlide = index;
-        
-        slider.style.transform = `translateX(-${currentSlide * 100}%)`;
-        
-        dots.forEach((dot, i) => {
-            dot.classList.toggle('active', i === currentSlide);
-        });
-    }
-
-    function nextSlide() {
-        goToSlide(currentSlide + 1);
-    }
-
-    function prevSlide() {
-        goToSlide(currentSlide - 1);
-    }
-
-    if (prevBtn) prevBtn.onclick = (e) => { e.stopPropagation(); prevSlide(); };
-    if (nextBtn) nextBtn.onclick = (e) => { e.stopPropagation(); nextSlide(); };
-    
-    dots.forEach((dot, i) => {
-        dot.onclick = (e) => { e.stopPropagation(); goToSlide(i); };
-    });
-
-    sliderIntervals[productId] = setInterval(nextSlide, 4000);
-
-    const container = document.getElementById(`slider-container-${productId}`);
-    if (container) {
-        container.addEventListener('mouseenter', () => {
-            clearInterval(sliderIntervals[productId]);
-        });
-        container.addEventListener('mouseleave', () => {
-            clearInterval(sliderIntervals[productId]);
-            sliderIntervals[productId] = setInterval(nextSlide, 4000);
-        });
-    }
-}
-
-// ============================================================
-// RENDER PRODUCTS
+// RENDER PRODUCTS - مع تقليب يدوي فقط
 // ============================================================
 function renderProducts() {
     if (!productsGrid) return;
     productsGrid.innerHTML = '';
-    
-    Object.keys(sliderIntervals).forEach(key => {
-        clearInterval(sliderIntervals[key]);
-        delete sliderIntervals[key];
-    });
     
     if (products.length === 0) {
         productsGrid.innerHTML = `
@@ -478,12 +416,66 @@ function renderProducts() {
         `;
         productsGrid.appendChild(card);
 
+        // ===== إعداد التقليب اليدوي فقط (بدون تلقائي) =====
         setTimeout(() => {
             if (totalSlides > 1) {
-                initSlider(p._id, images.length, p.hasVideo && p.video);
+                setupManualSlider(p._id);
             }
         }, 100);
     });
+}
+
+// ============================================================
+// SETUP MANUAL SLIDER - تقليب يدوي فقط
+// ============================================================
+function setupManualSlider(productId) {
+    const slider = document.getElementById(`slider-${productId}`);
+    const dots = document.querySelectorAll(`#slider-${productId} .slider-dot`);
+    const prevBtn = document.getElementById(`prev-${productId}`);
+    const nextBtn = document.getElementById(`next-${productId}`);
+    
+    if (!slider) return;
+
+    let currentSlide = 0;
+    const slides = slider.querySelectorAll('.product-slide');
+    const totalSlides = slides.length;
+
+    function goToSlide(index) {
+        if (index >= totalSlides) index = 0;
+        if (index < 0) index = totalSlides - 1;
+        currentSlide = index;
+        
+        slider.style.transform = `translateX(-${currentSlide * 100}%)`;
+        
+        dots.forEach((dot, i) => {
+            dot.classList.toggle('active', i === currentSlide);
+        });
+    }
+
+    // إضافة أحداث النقر للأزرار
+    if (prevBtn) {
+        prevBtn.onclick = function(e) {
+            e.stopPropagation();
+            goToSlide(currentSlide - 1);
+        };
+    }
+    
+    if (nextBtn) {
+        nextBtn.onclick = function(e) {
+            e.stopPropagation();
+            goToSlide(currentSlide + 1);
+        };
+    }
+    
+    dots.forEach((dot, i) => {
+        dot.onclick = function(e) {
+            e.stopPropagation();
+            goToSlide(i);
+        };
+    });
+
+    // ===== إزالة أي تقليب تلقائي =====
+    // لا يوجد setInterval هنا
 }
 
 // ============================================================
@@ -772,53 +764,87 @@ function showAdminPanel() {
 }
 
 // ============================================================
-// ADD PRODUCT
+// ADD PRODUCT - الإصدار المُصلَح
 // ============================================================
 async function addProduct(e) {
     e.preventDefault();
+    
     if (!currentUser || !currentUser.isAdmin) {
         showToast('⚠️ غير مصرح لك بهذه العملية', 'error');
         return;
     }
 
+    // جلب البيانات من الحقول
     const name = document.getElementById('productName').value.trim();
     const price = parseFloat(document.getElementById('productPrice').value);
-    const colors = document.getElementById('productColors').value.split(',').map(c => c.trim()).filter(c => c);
-    const sizes = document.getElementById('productSizes').value.split(',').map(s => s.trim()).filter(s => s);
+    const colorsInput = document.getElementById('productColors').value;
+    const sizesInput = document.getElementById('productSizes').value;
+    
+    const colors = colorsInput.split(',').map(c => c.trim()).filter(c => c);
+    const sizes = sizesInput.split(',').map(s => s.trim()).filter(s => s);
 
-    if (!name || !price || pendingImages.length === 0 || colors.length === 0 || sizes.length === 0) {
-        showToast('⚠️ يرجى ملء جميع الحقول واختيار صورة واحدة على الأقل', 'error');
+    // التحقق من البيانات
+    if (!name) {
+        showToast('⚠️ يرجى إدخال اسم المنتج', 'error');
+        return;
+    }
+    if (!price || isNaN(price) || price <= 0) {
+        showToast('⚠️ يرجى إدخال سعر صحيح للمنتج', 'error');
+        return;
+    }
+    if (pendingImages.length === 0) {
+        showToast('⚠️ يرجى اختيار صورة واحدة على الأقل للمنتج', 'error');
+        return;
+    }
+    if (colors.length === 0) {
+        showToast('⚠️ يرجى إدخال لون واحد على الأقل', 'error');
+        return;
+    }
+    if (sizes.length === 0) {
+        showToast('⚠️ يرجى إدخال مقاس واحد على الأقل', 'error');
         return;
     }
 
     try {
+        // تجهيز البيانات للإرسال
         const newProduct = {
-            name,
-            price,
+            name: name,
+            price: price,
             images: pendingImages,
             coverImage: pendingImages[0],
             video: pendingVideoData || '',
             hasVideo: !!pendingVideoData,
             videoType: pendingVideoFile ? pendingVideoFile.type : '',
-            colors,
-            sizes
+            colors: colors,
+            sizes: sizes
         };
+
+        console.log('📤 إرسال المنتج:', { 
+            name, price, 
+            imageCount: pendingImages.length, 
+            hasVideo: !!pendingVideoData,
+            colors, sizes 
+        });
 
         const saved = await addProductToServer(newProduct);
         products.unshift(saved);
         renderProducts();
         updateProductCount();
         
+        // إعادة تعيين النموذج
         document.getElementById('addProductForm').reset();
         document.getElementById('imagePreview').innerHTML = '';
         document.getElementById('videoPreview').innerHTML = `<span style="color:#888;font-size:14px;">📹 لم يتم اختيار فيديو</span>`;
         pendingImages = [];
         pendingVideoFile = null;
         pendingVideoData = null;
-        showToast(`✅ تم إضافة المنتج بنجاح`, 'success');
+        
+        showToast(`✅ تم إضافة المنتج "${name}" بنجاح`, 'success');
         showSection('products');
+        
     } catch (err) {
-        // error handled
+        console.error('❌ خطأ في إضافة المنتج:', err);
+        // الخطأ يتم عرضه من داخل addProductToServer
     }
 }
 
@@ -877,32 +903,35 @@ document.addEventListener('DOMContentLoaded', () => {
     showSection('home');
 
     // Image upload handler - multiple images
-    document.getElementById('productImagesInput').addEventListener('change', function(e) {
-        const files = e.target.files;
-        const previewDiv = document.getElementById('imagePreview');
-        previewDiv.innerHTML = '';
-        pendingImages = [];
+    const imagesInput = document.getElementById('productImagesInput');
+    if (imagesInput) {
+        imagesInput.addEventListener('change', function(e) {
+            const files = e.target.files;
+            const previewDiv = document.getElementById('imagePreview');
+            previewDiv.innerHTML = '';
+            pendingImages = [];
 
-        if (files.length === 0) {
-            showToast('⚠️ يرجى اختيار صورة واحدة على الأقل', 'error');
-            return;
-        }
+            if (files.length === 0) {
+                showToast('⚠️ يرجى اختيار صورة واحدة على الأقل', 'error');
+                return;
+            }
 
-        Array.from(files).forEach(file => {
-            const reader = new FileReader();
-            reader.onload = function(event) {
-                pendingImages.push(event.target.result);
-                const img = document.createElement('img');
-                img.src = event.target.result;
-                previewDiv.appendChild(img);
-                
-                if (pendingImages.length === files.length) {
-                    showToast(`✅ تم تحميل ${pendingImages.length} صور بنجاح`, 'success');
-                }
-            };
-            reader.readAsDataURL(file);
+            Array.from(files).forEach(file => {
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    pendingImages.push(event.target.result);
+                    const img = document.createElement('img');
+                    img.src = event.target.result;
+                    previewDiv.appendChild(img);
+                    
+                    if (pendingImages.length === files.length) {
+                        showToast(`✅ تم تحميل ${pendingImages.length} صور بنجاح`, 'success');
+                    }
+                };
+                reader.readAsDataURL(file);
+            });
         });
-    });
+    }
 
     // Navbar scroll effect
     window.addEventListener('scroll', () => {
