@@ -42,13 +42,15 @@ mongoose.connect(process.env.MONGODB_URI, {
 // ============================================================
 
 // Product Schema
+// Product Schema - مع دعم الفيديو المحلي
 const productSchema = new mongoose.Schema({
     name: { type: String, required: true },
     price: { type: Number, required: true },
     images: { type: [String], required: true },
     coverImage: { type: String, required: true },
-    video: { type: String, default: '' },
+    video: { type: String, default: '' },        // Base64 للفيديو
     hasVideo: { type: Boolean, default: false },
+    videoType: { type: String, default: '' },     // نوع الفيديو (MP4, WebM, إلخ)
     colors: { type: [String], required: true },
     sizes: { type: [String], required: true },
     createdAt: { type: Number, default: Date.now }
@@ -137,7 +139,7 @@ app.get('/api/products', async (req, res) => {
 
 app.post('/api/products', verifyToken, isAdmin, async (req, res) => {
     try {
-        const { name, price, images, coverImage, video, hasVideo, colors, sizes } = req.body;
+        const { name, price, images, coverImage, video, hasVideo, videoType, colors, sizes } = req.body;
         
         if (!name || !price || !images || images.length === 0 || !coverImage || !colors || !sizes) {
             return res.status(400).json({ error: 'جميع الحقول مطلوبة بما في ذلك صورة واحدة على الأقل' });
@@ -150,6 +152,7 @@ app.post('/api/products', verifyToken, isAdmin, async (req, res) => {
             coverImage,
             video: video || '',
             hasVideo: hasVideo || false,
+            videoType: videoType || '',
             colors,
             sizes,
             createdAt: Date.now()
