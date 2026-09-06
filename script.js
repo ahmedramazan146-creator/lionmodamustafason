@@ -457,7 +457,8 @@ function setupManualSlider(productId) {
         if (index < 0) index = totalSlides - 1;
         currentSlide = index;
         
-        slider.style.transform = `translateX(-${currentSlide * 100}%)`;
+        // الانتقال بدون شاشة بيضاء
+        slider.style.transform = `translateX(${currentSlide * 100}%)`;
         
         dots.forEach((dot, i) => {
             dot.classList.toggle('active', i === currentSlide);
@@ -489,10 +490,46 @@ function setupManualSlider(productId) {
         };
     });
 
-    // التأكد من أن الصورة الأولى ظاهرة
+    // ==========================================
+    // كود دعم السحب باللمس للهواتف
+    // ==========================================
+    let touchStartX = 0;
+    let touchEndX = 0;
+    const minSwipeDistance = 40;
+
+    slider.addEventListener('touchstart', (e) => {
+        touchStartX = e.changedTouches[0].screenX;
+    }, { passive: true });
+
+    slider.addEventListener('touchmove', (e) => {
+        touchEndX = e.changedTouches[0].screenX;
+    }, { passive: true });
+
+    slider.addEventListener('touchend', () => {
+        handleSwipe();
+    }, { passive: true });
+
+    function handleSwipe() {
+        const swipeDistance = touchEndX - touchStartX;
+        
+        if (Math.abs(swipeDistance) >= minSwipeDistance) {
+            if (swipeDistance > 0) {
+                goToSlide(currentSlide - 1);
+            } else {
+                goToSlide(currentSlide + 1);
+            }
+        }
+        
+        touchStartX = 0;
+        touchEndX = 0;
+    }
+    // ==========================================
+
     slider.style.transform = 'translateX(0%)';
 }
 
+    // التأكد من أن الصورة الأولى ظاهرة
+   
 // ============================================================
 // DELETE PRODUCT
 // ============================================================
