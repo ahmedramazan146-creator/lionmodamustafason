@@ -16,7 +16,8 @@ let currentUser = null;
 let products = [];
 let selectedSize = {};
 let pendingImages = [];
-let pendingVideo = '';
+let pendingVideoFile = null;   // ملف الفيديو كـ File object
+let pendingVideoData = null;   // الفيديو كـ Base64
 let authToken = localStorage.getItem('kbs_token') || null;
 let sliderIntervals = {};
 
@@ -84,7 +85,6 @@ function createParticles() {
         particle.style.animationDelay = (Math.random() * 15) + 's';
         particle.style.opacity = Math.random() * 0.4 + 0.05;
         
-        // ألوان متعددة للجسيمات
         const colors = ['#ff6a00', '#ff2d75', '#8b5cf6', '#3b82f6', '#06b6d4', '#22c55e', '#eab308'];
         particle.style.background = colors[Math.floor(Math.random() * colors.length)];
         container.appendChild(particle);
@@ -196,6 +196,70 @@ function logoutUserLocally() {
 }
 
 // ============================================================
+// VIDEO UPLOAD - رفع فيديو محلي (الكود الذي أرسلته)
+// ============================================================
+document.getElementById('productVideoInput').addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    const previewDiv = document.getElementById('videoPreview');
+    previewDiv.innerHTML = '';
+    pendingVideoFile = null;
+    pendingVideoData = null;
+
+    if (!file) {
+        previewDiv.innerHTML = `<span style="color:#888;font-size:14px;">📹 لم يتم اختيار فيديو</span>`;
+        return;
+    }
+
+    // التحقق من نوع الفيديو
+    const validTypes = ['video/mp4', 'video/webm', 'video/avi', 'video/quicktime', 'video/x-msvideo'];
+    if (!validTypes.includes(file.type)) {
+        previewDiv.innerHTML = `<span style="color:#ef4444;font-size:14px;">⚠️ يرجى اختيار ملف فيديو صحيح (MP4, WebM, AVI)</span>`;
+        return;
+    }
+
+    // التحقق من حجم الفيديو (حد أقصى 100MB)
+    if (file.size > 100 * 1024 * 1024) {
+        previewDiv.innerHTML = `<span style="color:#ef4444;font-size:14px;">⚠️ حجم الفيديو كبير جداً (الحد الأقصى 100MB)</span>`;
+        return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = function(event) {
+        pendingVideoData = event.target.result; // Base64
+        pendingVideoFile = file;
+        
+        // عرض معاينة الفيديو
+        previewDiv.innerHTML = `
+            <div style="position:relative;padding-bottom:56.25%;height:0;border-radius:10px;overflow:hidden;border:2px solid #ff6a00;background:#000;">
+                <video controls style="position:absolute;top:0;left:0;width:100%;height:100%;">
+                    <source src="${pendingVideoData}" type="${file.type}">
+                    متصفحك لا يدعم تشغيل الفيديو
+                </video>
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 4px;">
+                <span style="color:#22c55e;font-size:13px;">✅ ${file.name} (${(file.size / 1024 / 1024).toFixed(2)} MB)</span>
+                <button onclick="clearVideo()" style="background:#ef4444;color:#fff;border:none;border-radius:6px;padding:4px 12px;cursor:pointer;font-size:12px;">
+                    <i class="fas fa-times"></i> إزالة
+                </button>
+            </div>
+        `;
+        showToast(`✅ تم تحميل الفيديو: ${file.name}`, 'success');
+    };
+    reader.readAsDataURL(file);
+});
+
+// ============================================================
+// CLEAR VIDEO - إزالة الفيديو المرفوع
+// ============================================================
+function clearVideo() {
+    document.getElementById('productVideoInput').value = '';
+    document.getElementById('videoPreview').innerHTML = `<span style="color:#888;font-size:14px;">📹 لم يتم اختيار فيديو</span>`;
+    pendingVideoFile = null;
+    pendingVideoData = null;
+    showToast('🗑️ تم إزالة الفيديو', 'success');
+}
+
+// ============================================================
 // PRODUCT SLIDER FUNCTIONS
 // ============================================================
 
@@ -302,23 +366,21 @@ function renderProducts() {
         let slidesHTML = '';
         const images = p.images || [p.image || p.coverImage];
         
+        // عرض الفيديو المحلي إذا كان موجوداً
         if (p.hasVideo && p.video) {
-            const videoId = extractVideoId(p.video);
-            if (videoId) {
-                slidesHTML += `
-                    <div class="product-slide">
-                        <div style="width:100%;height:100%;position:relative;background:#000;">
-                            <iframe src="https://www.youtube.com/embed/${videoId}?autoplay=0&controls=1&rel=0" 
-                                    style="position:absolute;top:0;left:0;width:100%;height:100%;border:0;"
-                                    allowfullscreen>
-                            </iframe>
-                            <div class="video-overlay" onclick="event.stopPropagation();">
-                                <i class="fas fa-play"></i>
-                            </div>
+            slidesHTML += `
+                <div class="product-slide">
+                    <div style="width:100%;height:100%;position:relative;background:#000;">
+                        <video controls style="position:absolute;top:0;left:0;width:100%;height:100%;object-fit:contain;">
+                            <source src="${p.video}" type="${p.videoType || 'video/mp4'}">
+                            متصفحك لا يدعم تشغيل الفيديو
+                        </video>
+                        <div class="video-overlay" onclick="event.stopPropagation();this.style.display='none';this.parentElement.querySelector('video').play();" style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:60px;height:60px;background:rgba(255,106,0,0.9);border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 4px 20px rgba(255,106,0,0.3);z-index:2;">
+                            <i class="fas fa-play" style="color:#fff;font-size:24px;margin-left:4px;"></i>
                         </div>
                     </div>
-                `;
-            }
+                </div>
+            `;
         }
 
         images.forEach(img => {
@@ -661,6 +723,9 @@ function showAdminPanel() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
+// ============================================================
+// ADD PRODUCT - مع دعم الفيديو المحلي
+// ============================================================
 async function addProduct(e) {
     e.preventDefault();
     if (!currentUser || !currentUser.isAdmin) {
@@ -672,7 +737,6 @@ async function addProduct(e) {
     const price = parseFloat(document.getElementById('productPrice').value);
     const colors = document.getElementById('productColors').value.split(',').map(c => c.trim()).filter(c => c);
     const sizes = document.getElementById('productSizes').value.split(',').map(s => s.trim()).filter(s => s);
-    const videoUrl = document.getElementById('productVideo').value.trim();
 
     if (!name || !price || pendingImages.length === 0 || colors.length === 0 || sizes.length === 0) {
         showToast('⚠️ يرجى ملء جميع الحقول واختيار صورة واحدة على الأقل', 'error');
@@ -685,8 +749,9 @@ async function addProduct(e) {
             price,
             images: pendingImages,
             coverImage: pendingImages[0],
-            video: videoUrl || '',
-            hasVideo: !!videoUrl,
+            video: pendingVideoData || '',      // ← الفيديو كـ Base64
+            hasVideo: !!pendingVideoData,
+            videoType: pendingVideoFile ? pendingVideoFile.type : '',
             colors,
             sizes
         };
@@ -698,10 +763,11 @@ async function addProduct(e) {
         
         document.getElementById('addProductForm').reset();
         document.getElementById('imagePreview').innerHTML = '';
-        document.getElementById('videoPreview').innerHTML = '';
+        document.getElementById('videoPreview').innerHTML = `<span style="color:#888;font-size:14px;">📹 لم يتم اختيار فيديو</span>`;
         pendingImages = [];
-        pendingVideo = '';
-        showToast(`✅ تم إضافة المنتج مع ${pendingImages.length} صور`, 'success');
+        pendingVideoFile = null;
+        pendingVideoData = null;
+        showToast(`✅ تم إضافة المنتج بنجاح`, 'success');
         showSection('products');
     } catch (err) {
         // error handled
@@ -743,16 +809,6 @@ function toggleMobileMenu() {
 }
 
 // ============================================================
-// VIDEO HELPERS
-// ============================================================
-function extractVideoId(url) {
-    if (!url) return null;
-    const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
-    const match = url.match(regExp);
-    return (match && match[2] && match[2].length === 11) ? match[2] : null;
-}
-
-// ============================================================
 // INIT
 // ============================================================
 function updateProductCount() {
@@ -772,6 +828,7 @@ document.addEventListener('DOMContentLoaded', () => {
     updateCartUI();
     showSection('home');
 
+    // Image upload handler - multiple images
     document.getElementById('productImagesInput').addEventListener('change', function(e) {
         const files = e.target.files;
         const previewDiv = document.getElementById('imagePreview');
@@ -799,33 +856,12 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    document.getElementById('productVideo').addEventListener('input', function(e) {
-        const url = e.target.value.trim();
-        const previewDiv = document.getElementById('videoPreview');
-        previewDiv.innerHTML = '';
-        
-        if (url) {
-            const videoId = extractVideoId(url);
-            if (videoId) {
-                previewDiv.innerHTML = `
-                    <div style="position:relative;padding-bottom:56.25%;height:0;border-radius:10px;overflow:hidden;border:2px solid #ff6a00;">
-                        <iframe src="https://www.youtube.com/embed/${videoId}" 
-                                style="position:absolute;top:0;left:0;width:100%;height:100%;border:0;"
-                                allowfullscreen>
-                        </iframe>
-                    </div>
-                `;
-                showToast('✅ تم تحميل الفيديو بنجاح', 'success');
-            } else {
-                previewDiv.innerHTML = `<span style="color:#ef4444;font-size:14px;">⚠️ رابط فيديو غير صالح. يرجى استخدام رابط YouTube صحيح.</span>`;
-            }
-        }
-    });
-
+    // Navbar scroll effect
     window.addEventListener('scroll', () => {
         document.getElementById('navbar').classList.toggle('scrolled', window.scrollY > 40);
     });
 
+    // Close mobile menu on outside click
     document.addEventListener('click', (e) => {
         if (window.innerWidth <= 768) {
             const menu = document.getElementById('navLinks');
@@ -858,4 +894,4 @@ window.deleteProduct = deleteProduct;
 window.showToast = showToast;
 window.loginUser = loginUser;
 window.registerUser = registerUser;
-window.extractVideoId = extractVideoId;
+window.clearVideo = clearVideo;
