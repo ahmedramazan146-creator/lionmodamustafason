@@ -41,22 +41,19 @@ mongoose.connect(process.env.MONGODB_URI, {
 // SCHEMAS
 // ============================================================
 
-// Product Schema
-// Product Schema - مع دعم الفيديو المحلي
 const productSchema = new mongoose.Schema({
     name: { type: String, required: true },
     price: { type: Number, required: true },
     images: { type: [String], required: true },
     coverImage: { type: String, required: true },
-    video: { type: String, default: '' },        // Base64 للفيديو
+    video: { type: String, default: '' },
     hasVideo: { type: Boolean, default: false },
-    videoType: { type: String, default: '' },     // نوع الفيديو (MP4, WebM, إلخ)
+    videoType: { type: String, default: '' },
     colors: { type: [String], required: true },
     sizes: { type: [String], required: true },
     createdAt: { type: Number, default: Date.now }
 });
 
-// User Schema
 const userSchema = new mongoose.Schema({
     name: { type: String, required: true },
     email: { type: String, required: true, unique: true },
@@ -125,8 +122,6 @@ initAdmin();
 // ============================================================
 // API ROUTES
 // ============================================================
-
-// ---------- PRODUCTS ----------
 
 app.get('/api/products', async (req, res) => {
     try {
