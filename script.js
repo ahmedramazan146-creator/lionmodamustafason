@@ -349,7 +349,10 @@ function renderProducts() {
         }
 
         let slidesHTML = '';
-        const images = p.images || [p.image || p.coverImage];
+        const images = (p.images && p.images.length > 0) ? p.images : [p.image || p.coverImage || ''];
+        // تصفية الصور الفارغة
+        const validImages = images.filter(img => img && img.length > 10);
+        const finalImages = validImages.length > 0 ? validImages : ['data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 200 200"%3E%3Crect width="200" height="200" fill="%23f5f5f5"/%3E%3Ctext x="40" y="110" font-family="Arial" font-size="16" fill="%23999"%3Eلا توجد صورة%3C/text%3E%3C/svg%3E'];
         
         // عرض الفيديو المحلي إذا كان موجوداً
         if (p.hasVideo && p.video) {
@@ -369,7 +372,7 @@ function renderProducts() {
         }
 
         // عرض الصور مع إمكانية النقر للتكبير
-        images.forEach((img, imgIndex) => {
+        finalImages.forEach((img, imgIndex) => {
             slidesHTML += `
                 <div class="product-slide">
                     <img src="${img}" alt="${p.name}" loading="lazy" onclick="event.stopPropagation();openLightbox('${p._id}', ${imgIndex})" />
@@ -377,7 +380,7 @@ function renderProducts() {
             `;
         });
 
-        const totalSlides = images.length + (p.hasVideo && p.video ? 1 : 0);
+        const totalSlides = finalImages.length + (p.hasVideo && p.video ? 1 : 0);
         let dotsHTML = '';
         for (let i = 0; i < totalSlides; i++) {
             dotsHTML += `<button class="slider-dot ${i === 0 ? 'active' : ''}" data-index="${i}"></button>`;
@@ -426,21 +429,30 @@ function renderProducts() {
 }
 
 // ============================================================
-// SETUP MANUAL SLIDER - تقليب يدوي فقط
+// SETUP MANUAL SLIDER - النسخة المُصلَحة
 // ============================================================
 function setupManualSlider(productId) {
-    const slider = document.getElementById(`slider-${productId}`);
-    const dots = document.querySelectorAll(`#slider-${productId} .slider-dot`);
-    const prevBtn = document.getElementById(`prev-${productId}`);
-    const nextBtn = document.getElementById(`next-${productId}`);
+    const container = document.getElementById(`slider-container-${productId}`);
+    if (!container) return;
     
+    const slider = container.querySelector('.product-slider');
     if (!slider) return;
 
-    let currentSlide = 0;
     const slides = slider.querySelectorAll('.product-slide');
     const totalSlides = slides.length;
+    if (totalSlides <= 1) return;
+
+    const dots = container.querySelectorAll('.slider-dot');
+    const prevBtn = container.querySelector('.slider-arrow.prev');
+    const nextBtn = container.querySelector('.slider-arrow.next');
+    
+    let currentSlide = 0;
+    let isTransitioning = false;
 
     function goToSlide(index) {
+        if (isTransitioning) return;
+        isTransitioning = true;
+        
         if (index >= totalSlides) index = 0;
         if (index < 0) index = totalSlides - 1;
         currentSlide = index;
@@ -450,9 +462,12 @@ function setupManualSlider(productId) {
         dots.forEach((dot, i) => {
             dot.classList.toggle('active', i === currentSlide);
         });
+        
+        setTimeout(() => {
+            isTransitioning = false;
+        }, 600);
     }
 
-    // إضافة أحداث النقر للأزرار
     if (prevBtn) {
         prevBtn.onclick = function(e) {
             e.stopPropagation();
@@ -474,8 +489,8 @@ function setupManualSlider(productId) {
         };
     });
 
-    // ===== إزالة أي تقليب تلقائي =====
-    // لا يوجد setInterval هنا
+    // التأكد من أن الصورة الأولى ظاهرة
+    slider.style.transform = 'translateX(0%)';
 }
 
 // ============================================================
@@ -805,19 +820,38 @@ async function addProduct(e) {
         return;
     }
 
+    // تحقق من حجم الفيديو
+    if (pendingVideoData && pendingVideoData.length > 100 * 1024 * 1024) {
+        showToast('⚠️ حجم الفيديو كبير جداً (الحد الأقصى 100 ميجابايت)', 'error');
+        return;
+    }
+
+    const submitBtn = document.querySelector('#addProductForm button[type="submit"]');
+    const originalText = submitBtn.innerHTML;
+    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري الإضافة...';
+    submitBtn.disabled = true;
+
     try {
         // تجهيز البيانات للإرسال
         const newProduct = {
             name: name,
             price: price,
-            images: pendingImages,
-            coverImage: pendingImages[0],
+            images: pendingImages.filter(img => img && img.length > 0),
+            coverImage: pendingImages[0] || '',
             video: pendingVideoData || '',
             hasVideo: !!pendingVideoData,
             videoType: pendingVideoFile ? pendingVideoFile.type : '',
             colors: colors,
             sizes: sizes
         };
+
+        // تحقق من أن جميع الصور صالحة
+        if (newProduct.images.some(img => !img || img.length < 10)) {
+            showToast('⚠️ بعض الصور غير صالحة، حاول رفعها مرة أخرى', 'error');
+            submitBtn.innerHTML = originalText;
+            submitBtn.disabled = false;
+            return;
+        }
 
         console.log('📤 إرسال المنتج:', { 
             name, price, 
@@ -845,6 +879,9 @@ async function addProduct(e) {
     } catch (err) {
         console.error('❌ خطأ في إضافة المنتج:', err);
         // الخطأ يتم عرضه من داخل addProductToServer
+    } finally {
+        submitBtn.innerHTML = originalText;
+        submitBtn.disabled = false;
     }
 }
 
