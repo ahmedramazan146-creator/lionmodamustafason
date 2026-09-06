@@ -16,10 +16,15 @@ let currentUser = null;
 let products = [];
 let selectedSize = {};
 let pendingImages = [];
-let pendingVideoFile = null;   // ملف الفيديو كـ File object
-let pendingVideoData = null;   // الفيديو كـ Base64
+let pendingVideoFile = null;
+let pendingVideoData = null;
 let authToken = localStorage.getItem('kbs_token') || null;
 let sliderIntervals = {};
+
+// ===== LIGHTBOX STATE =====
+let lightboxImages = [];
+let lightboxCurrentIndex = 0;
+let lightboxProductId = null;
 
 // ============================================================
 // DOM REFS
@@ -196,7 +201,7 @@ function logoutUserLocally() {
 }
 
 // ============================================================
-// VIDEO UPLOAD - رفع فيديو محلي (الكود الذي أرسلته)
+// VIDEO UPLOAD - رفع فيديو محلي
 // ============================================================
 document.getElementById('productVideoInput').addEventListener('change', function(e) {
     const file = e.target.files[0];
@@ -210,14 +215,12 @@ document.getElementById('productVideoInput').addEventListener('change', function
         return;
     }
 
-    // التحقق من نوع الفيديو
     const validTypes = ['video/mp4', 'video/webm', 'video/avi', 'video/quicktime', 'video/x-msvideo'];
     if (!validTypes.includes(file.type)) {
         previewDiv.innerHTML = `<span style="color:#ef4444;font-size:14px;">⚠️ يرجى اختيار ملف فيديو صحيح (MP4, WebM, AVI)</span>`;
         return;
     }
 
-    // التحقق من حجم الفيديو (حد أقصى 100MB)
     if (file.size > 100 * 1024 * 1024) {
         previewDiv.innerHTML = `<span style="color:#ef4444;font-size:14px;">⚠️ حجم الفيديو كبير جداً (الحد الأقصى 100MB)</span>`;
         return;
@@ -225,10 +228,9 @@ document.getElementById('productVideoInput').addEventListener('change', function
 
     const reader = new FileReader();
     reader.onload = function(event) {
-        pendingVideoData = event.target.result; // Base64
+        pendingVideoData = event.target.result;
         pendingVideoFile = file;
         
-        // عرض معاينة الفيديو
         previewDiv.innerHTML = `
             <div style="position:relative;padding-bottom:56.25%;height:0;border-radius:10px;overflow:hidden;border:2px solid #ff6a00;background:#000;">
                 <video controls style="position:absolute;top:0;left:0;width:100%;height:100%;">
@@ -248,9 +250,6 @@ document.getElementById('productVideoInput').addEventListener('change', function
     reader.readAsDataURL(file);
 });
 
-// ============================================================
-// CLEAR VIDEO - إزالة الفيديو المرفوع
-// ============================================================
 function clearVideo() {
     document.getElementById('productVideoInput').value = '';
     document.getElementById('videoPreview').innerHTML = `<span style="color:#888;font-size:14px;">📹 لم يتم اختيار فيديو</span>`;
@@ -258,6 +257,54 @@ function clearVideo() {
     pendingVideoData = null;
     showToast('🗑️ تم إزالة الفيديو', 'success');
 }
+
+// ============================================================
+// LIGHTBOX FUNCTIONS - عرض الصور بشكل مكبر
+// ============================================================
+function openLightbox(productId, imageIndex) {
+    const product = products.find(p => p._id === productId);
+    if (!product) return;
+
+    const images = product.images || [product.image || product.coverImage];
+    if (!images || images.length === 0) return;
+
+    lightboxProductId = productId;
+    lightboxImages = images;
+    lightboxCurrentIndex = imageIndex;
+
+    const lightbox = document.getElementById('lightbox');
+    const img = document.getElementById('lightboxImg');
+    const counter = document.getElementById('lightboxCounter');
+
+    img.src = images[imageIndex];
+    counter.textContent = `${imageIndex + 1} / ${images.length}`;
+    lightbox.classList.add('active');
+    document.body.style.overflow = 'hidden';
+}
+
+function closeLightbox() {
+    document.getElementById('lightbox').classList.remove('active');
+    document.body.style.overflow = '';
+}
+
+function changeLightboxImage(direction) {
+    const total = lightboxImages.length;
+    if (total === 0) return;
+
+    lightboxCurrentIndex = (lightboxCurrentIndex + direction + total) % total;
+    document.getElementById('lightboxImg').src = lightboxImages[lightboxCurrentIndex];
+    document.getElementById('lightboxCounter').textContent = `${lightboxCurrentIndex + 1} / ${total}`;
+}
+
+// Keyboard support for lightbox
+document.addEventListener('keydown', function(e) {
+    const lightbox = document.getElementById('lightbox');
+    if (!lightbox.classList.contains('active')) return;
+
+    if (e.key === 'Escape') closeLightbox();
+    if (e.key === 'ArrowRight') changeLightboxImage(1);
+    if (e.key === 'ArrowLeft') changeLightboxImage(-1);
+});
 
 // ============================================================
 // PRODUCT SLIDER FUNCTIONS
@@ -383,10 +430,11 @@ function renderProducts() {
             `;
         }
 
-        images.forEach(img => {
+        // عرض الصور مع إمكانية النقر للتكبير
+        images.forEach((img, imgIndex) => {
             slidesHTML += `
                 <div class="product-slide">
-                    <img src="${img}" alt="${p.name}" loading="lazy" />
+                    <img src="${img}" alt="${p.name}" loading="lazy" onclick="event.stopPropagation();openLightbox('${p._id}', ${imgIndex})" />
                 </div>
             `;
         });
@@ -724,7 +772,7 @@ function showAdminPanel() {
 }
 
 // ============================================================
-// ADD PRODUCT - مع دعم الفيديو المحلي
+// ADD PRODUCT
 // ============================================================
 async function addProduct(e) {
     e.preventDefault();
@@ -749,7 +797,7 @@ async function addProduct(e) {
             price,
             images: pendingImages,
             coverImage: pendingImages[0],
-            video: pendingVideoData || '',      // ← الفيديو كـ Base64
+            video: pendingVideoData || '',
             hasVideo: !!pendingVideoData,
             videoType: pendingVideoFile ? pendingVideoFile.type : '',
             colors,
@@ -895,3 +943,6 @@ window.showToast = showToast;
 window.loginUser = loginUser;
 window.registerUser = registerUser;
 window.clearVideo = clearVideo;
+window.openLightbox = openLightbox;
+window.closeLightbox = closeLightbox;
+window.changeLightboxImage = changeLightboxImage;
