@@ -3,16 +3,13 @@
 <head>
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <script>
-        // ============================================================
-        // تحديد رابط API
-        // ============================================================
         const API_URL = window.location.hostname === 'localhost' 
             ? 'http://localhost:5000/api' 
             : 'https://lionmoda.onrender.com/api';
     </script>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>KBS FASHION | تسجيل الدخول</title>
+    <title>ليون موضة | تسجيل الدخول</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="style.css" />
@@ -22,23 +19,33 @@
             justify-content: center;
             align-items: center;
             min-height: 100vh;
-            background: var(--dark);
-            background-image: radial-gradient(ellipse at 20% 50%, rgba(139, 107, 74, 0.04) 0%, transparent 70%),
-                              radial-gradient(ellipse at 80% 50%, rgba(139, 107, 74, 0.02) 0%, transparent 70%);
+            background: linear-gradient(135deg, #ff6a00, #ff2d75, #8b5cf6, #3b82f6);
+            background-size: 400% 400%;
+            animation: gradientShift 10s ease-in-out infinite;
             margin: 0;
             padding: 20px;
+        }
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
         }
         .auth-page-solo {
             width: 100%;
             max-width: 440px;
         }
         .auth-box-solo {
-            background: var(--dark-card);
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
             padding: 40px;
             border-radius: var(--radius);
-            border: 1px solid rgba(255, 255, 255, 0.03);
-            box-shadow: var(--shadow);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
             animation: slideUp 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        @keyframes slideUp {
+            0% { opacity: 0; transform: translateY(40px); }
+            100% { opacity: 1; transform: translateY(0); }
         }
         .auth-header {
             text-align: center;
@@ -46,6 +53,7 @@
         }
         .auth-header h2 {
             font-size: 28px;
+            color: var(--dark);
             margin-bottom: 4px;
         }
         .auth-header p {
@@ -67,24 +75,24 @@
         .input-group input {
             width: 100%;
             padding: 14px 42px 14px 18px;
-            background: var(--dark);
-            border: 1px solid rgba(255, 255, 255, 0.04);
+            background: #fafafa;
+            border: 1px solid #e0e0e0;
             border-radius: 12px;
-            color: var(--white);
+            color: var(--dark);
             font-size: 15px;
             font-family: 'Cairo', sans-serif;
             transition: var(--transition);
         }
         .input-group input:focus {
-            border-color: var(--gold);
+            border-color: var(--secondary);
             outline: none;
-            box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.06);
+            box-shadow: 0 0 0 3px rgba(255, 106, 0, 0.04);
         }
         .btn-auth {
             width: 100%;
             padding: 14px;
-            background: linear-gradient(135deg, var(--brown), var(--brown-light));
-            color: var(--white);
+            background: linear-gradient(135deg, #ff6a00, #ff2d75);
+            color: #ffffff;
             border: none;
             border-radius: 12px;
             font-size: 17px;
@@ -100,7 +108,7 @@
         }
         .btn-auth:hover {
             transform: translateY(-2px);
-            box-shadow: 0 8px 30px rgba(139, 107, 74, 0.25);
+            box-shadow: 0 8px 30px rgba(255, 106, 0, 0.3);
         }
         .auth-footer {
             text-align: center;
@@ -109,7 +117,7 @@
             font-size: 14px;
         }
         .auth-footer a {
-            color: var(--gold);
+            color: var(--secondary);
             font-weight: 700;
             text-decoration: none;
         }
@@ -129,21 +137,21 @@
             content: '';
             flex: 1;
             height: 1px;
-            background: rgba(255, 255, 255, 0.05);
+            background: #e0e0e0;
         }
         .back-home {
             display: inline-block;
             margin-top: 12px;
-            color: var(--white-dim);
+            color: var(--gray);
             text-decoration: none;
             font-size: 13px;
             transition: var(--transition);
         }
         .back-home:hover {
-            color: var(--gold);
+            color: var(--secondary);
         }
         #loginError {
-            color: #ff6b6b;
+            color: #ef4444;
             font-size: 13px;
             text-align: center;
             margin-top: 8px;
@@ -156,12 +164,16 @@
         .logo-center .logo {
             font-size: 28px;
             font-weight: 900;
+            background: linear-gradient(135deg, #ff6a00, #ff2d75);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
         }
         .logo-center .logo span {
-            color: var(--gold);
+            color: var(--dark);
+            -webkit-text-fill-color: var(--dark);
         }
         .logo-center .logo .logo-icon {
-            color: var(--gold);
+            -webkit-text-fill-color: #ff6a00;
         }
     </style>
 </head>
@@ -173,7 +185,7 @@
             <div class="logo-center">
                 <div class="logo">
                     <span class="logo-icon">◆</span>
-                    KBS <span>FASHION</span>
+                    ليون <span>موضة</span>
                 </div>
             </div>
 
@@ -212,19 +224,12 @@
             </div>
 
             <div style="text-align:center; margin-top:16px; color:var(--gray); font-size:12px;">
-                ✧ حساب خاص بالمصممين فقط ✧
+                ✧  KBS  ✧
             </div>
         </div>
     </div>
 
     <script>
-        // ============================================================
-        // LOGIN PAGE
-        // ============================================================
-        const ADMIN_EMAIL = 'kbs@kbs.com';
-        const ADMIN_PASSWORD = 'kbs';
-        const USERS_KEY = 'kbs_users';
-
         function handleLoginPage(e) {
             e.preventDefault();
             
@@ -239,7 +244,6 @@
                 return;
             }
 
-            // استخدام API_URL المحدد
             axios.post(API_URL + '/auth/login', { 
                 email: identifier, 
                 password: password 
