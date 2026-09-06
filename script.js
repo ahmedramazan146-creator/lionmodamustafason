@@ -6,7 +6,7 @@ const API_URL = window.location.hostname === 'localhost'
     ? 'http://localhost:5000/api' 
     : 'https://lionmoda.onrender.com/api';
 
-const WHATSAPP_NUMBER = '966500000000';
+const WHATSAPP_NUMBER = '905375835691';
 const ADMIN_EMAIL = 'kbs@kbs.com';
 
 // ============================================================
