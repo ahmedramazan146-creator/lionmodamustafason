@@ -292,14 +292,17 @@
                 </div>
                 
                 <!-- ===== حقل رفع الصور المتعددة ===== -->
-                <div class="input-group file-upload">
-                    <i class="fas fa-images"></i>
-                    <label for="productImagesInput" class="file-label">
-                        <i class="fas fa-cloud-upload-alt"></i> اختر صور المنتج (يمكن اختيار عدة صور)
-                    </label>
-                    <input type="file" id="productImagesInput" accept="image/*" multiple required />
-                    <div id="imagePreview" class="image-preview"></div>
-                </div>
+                <!-- ===== حقل رفع الفيديو من الجهاز ===== -->
+<div class="input-group file-upload">
+    <i class="fas fa-video"></i>
+    <label for="productVideoInput" class="file-label">
+        <i class="fas fa-cloud-upload-alt"></i> اختر فيديو المنتج من جهازك (اختياري - MP4, WebM, AVI)
+    </label>
+    <input type="file" id="productVideoInput" accept="video/*" />
+    <div id="videoPreview" class="video-preview">
+        <span style="color:#888;font-size:14px;">📹 لم يتم اختيار فيديو</span>
+    </div>
+</div>
 
                 <!-- ===== حقل رفع الفيديو المحلي (بدلاً من رابط YouTube) ===== -->
                 <div class="input-group file-upload">
