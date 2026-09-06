@@ -17,7 +17,8 @@ const PORT = process.env.PORT || 5000;
 // MIDDLEWARE
 // ============================================================
 app.use(cors());
-app.use(express.json({ limit: '50mb' }));
+app.use(express.json({ limit: '150mb' }));
+app.use(express.urlencoded({ extended: true, limit: '150mb' }));
 
 // ============================================================
 // SERVE STATIC FILES
@@ -138,6 +139,10 @@ app.post('/api/products', verifyToken, isAdmin, async (req, res) => {
         
         if (!name || !price || !images || images.length === 0 || !coverImage || !colors || !sizes) {
             return res.status(400).json({ error: 'جميع الحقول مطلوبة بما في ذلك صورة واحدة على الأقل' });
+        }
+        
+        if (video && video.length > 100 * 1024 * 1024) {
+            return res.status(400).json({ error: 'حجم الفيديو كبير جداً (الحد الأقصى 100 ميجابايت)' });
         }
         
         const product = await Product.create({
