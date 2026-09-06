@@ -401,7 +401,7 @@ function handleCheckout() {
     message += `👤 العميل: ${currentUser.name || currentUser.email || 'زائر'}%0A`;
     message += `📅 تاريخ الطلب: ${new Date().toLocaleDateString('ar-EG')}`;
 
-    const url = `https://wa.me/${WHATSAPP_NUMBER}?text=${message}`;
+    const url = `https://wa.me/905375835691?text=${message}`;
     window.open(url, '_blank');
 
     cart = [];
