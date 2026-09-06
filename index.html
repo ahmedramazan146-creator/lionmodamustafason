@@ -274,41 +274,49 @@
             <p>أضف منتجاً جديداً إلى المتجر</p>
             
             <form id="addProductForm" onsubmit="addProduct(event)">
+                <!-- حقل اسم المنتج -->
                 <div class="input-group">
                     <i class="fas fa-tag"></i>
                     <input type="text" id="productName" placeholder="اسم المنتج" required />
                 </div>
+                
+                <!-- حقل السعر -->
                 <div class="input-group">
                     <i class="fas fa-dollar-sign"></i>
                     <input type="number" id="productPrice" placeholder="السعر" required />
                 </div>
+                
+                <!-- حقل الألوان -->
                 <div class="input-group">
                     <i class="fas fa-palette"></i>
                     <input type="text" id="productColors" placeholder="الألوان المتوفرة (مفصولة بفاصلة)" required />
                 </div>
+                
+                <!-- حقل المقاسات -->
                 <div class="input-group">
                     <i class="fas fa-ruler"></i>
                     <input type="text" id="productSizes" placeholder="المقاسات (مفصولة بفاصلة)" required />
                 </div>
                 
-                <!-- ===== حقل رفع الصور المتعددة ===== -->
-                <!-- ===== حقل رفع الفيديو من الجهاز ===== -->
-<div class="input-group file-upload">
-    <i class="fas fa-video"></i>
-    <label for="productVideoInput" class="file-label">
-        <i class="fas fa-cloud-upload-alt"></i> اختر فيديو المنتج من جهازك (اختياري - MP4, WebM, AVI)
-    </label>
-    <input type="file" id="productVideoInput" accept="video/*" />
-    <div id="videoPreview" class="video-preview">
-        <span style="color:#888;font-size:14px;">📹 لم يتم اختيار فيديو</span>
-    </div>
-</div>
+                <!-- ============================================================
+                حقل رفع الصور المتعددة
+                ============================================================ -->
+                <div class="input-group file-upload">
+                    <i class="fas fa-images"></i>
+                    <label for="productImagesInput" class="file-label">
+                        <i class="fas fa-cloud-upload-alt"></i> اختر صور المنتج (يمكن اختيار عدة صور)
+                    </label>
+                    <input type="file" id="productImagesInput" accept="image/*" multiple required />
+                    <div id="imagePreview" class="image-preview"></div>
+                </div>
 
-                <!-- ===== حقل رفع الفيديو المحلي (بدلاً من رابط YouTube) ===== -->
+                <!-- ============================================================
+                حقل رفع الفيديو المحلي (من الجهاز)
+                ============================================================ -->
                 <div class="input-group file-upload">
                     <i class="fas fa-video"></i>
                     <label for="productVideoInput" class="file-label">
-                        <i class="fas fa-cloud-upload-alt"></i> اختر فيديو المنتج (اختياري - MP4, WebM, AVI)
+                        <i class="fas fa-cloud-upload-alt"></i> اختر فيديو المنتج من جهازك (اختياري - MP4, WebM, AVI)
                     </label>
                     <input type="file" id="productVideoInput" accept="video/*" />
                     <div id="videoPreview" class="video-preview">
@@ -316,12 +324,14 @@
                     </div>
                 </div>
                 
+                <!-- زر إضافة المنتج -->
                 <button type="submit" class="btn-auth">
                     <i class="fas fa-plus-circle"></i> إضافة المنتج
                     <span class="btn-glow"></span>
                 </button>
             </form>
             
+            <!-- زر تسجيل الخروج -->
             <button class="btn-logout-admin" onclick="logoutUser()">
                 <i class="fas fa-sign-out-alt"></i> تسجيل الخروج
             </button>
