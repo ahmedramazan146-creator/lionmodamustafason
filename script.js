@@ -213,7 +213,7 @@ function renderProducts() {
             <div class="product-info">
                 <h3>${p.name}</h3>
                 <div class="price-row">
-                    <span class="price">${p.price} ₪</span>
+                    <span class="price">${p.price} TRY</span>
                 </div>
                 <div class="colors">🎨 ${p.colors ? p.colors.join(' • ') : 'ألوان متعددة'}</div>
                 <div class="size-selector" data-product-id="${p._id}">
@@ -358,7 +358,7 @@ function updateCartUI() {
                 <div class="cart-item-info">
                     <h4>${item.name}</h4>
                     <div class="item-size">المقاس: ${item.size}</div>
-                    <div class="item-price">${itemTotal} ₪ (${item.quantity} × ${item.price} ₪)</div>
+                    <div class="item-price">${itemTotal} TRY (${item.quantity} × ${item.price} TRY)</div>
                 </div>
                 <div class="cart-item-remove" onclick="removeFromCart(${index})">✕</div>
             </div>
@@ -366,7 +366,7 @@ function updateCartUI() {
     });
 
     cartItemsDiv.innerHTML = html;
-    cartTotalPrice.textContent = `${total} ₪`;
+    cartTotalPrice.textContent = `${total} TRY`;
 }
 
 // ============================================================
@@ -391,13 +391,13 @@ function handleCheckout() {
         const itemTotal = item.price * item.quantity;
         total += itemTotal;
         message += `${i+1}. ${item.name}%0A`;
-        message += `   - السعر: ${item.price} ₪%0A`;
+        cartTotalPrice.textContent = `${total} TRY`;
         message += `   - المقاس: ${item.size}%0A`;
         message += `   - الكمية: ${item.quantity}%0A`;
-        message += `   - المجموع: ${itemTotal} ₪%0A%0A`;
+        message += `   - المجموع: ${itemTotal} TRY%0A%0A`;
     });
     
-    message += `💰 *الإجمالي الكلي: ${total} ₪*%0A%0A`;
+    message += `💰 *الإجمالي الكلي: ${total} TRY*%0A%0A`;
     message += `👤 العميل: ${currentUser.name || currentUser.email || 'زائر'}%0A`;
     message += `📅 تاريخ الطلب: ${new Date().toLocaleDateString('ar-EG')}`;
 
