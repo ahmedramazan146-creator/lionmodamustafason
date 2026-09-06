@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>KBS FASHION | تسجيل الدخول</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="style.css" />
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: var(--dark);
+            background-image: radial-gradient(ellipse at 20% 50%, rgba(139, 107, 74, 0.04) 0%, transparent 70%),
+                              radial-gradient(ellipse at 80% 50%, rgba(139, 107, 74, 0.02) 0%, transparent 70%);
+            margin: 0;
+            padding: 20px;
+        }
+        .auth-page-solo {
+            width: 100%;
+            max-width: 440px;
+        }
+        .auth-box-solo {
+            background: var(--dark-card);
+            padding: 40px;
+            border-radius: var(--radius);
+            border: 1px solid rgba(255, 255, 255, 0.03);
+            box-shadow: var(--shadow);
+            animation: slideUp 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        .auth-header {
+            text-align: center;
+            margin-bottom: 28px;
+        }
+        .auth-header h2 {
+            font-size: 28px;
+            margin-bottom: 4px;
+        }
+        .auth-header p {
+            color: var(--gray);
+            font-size: 14px;
+        }
+        .input-group {
+            position: relative;
+            margin-bottom: 16px;
+        }
+        .input-group i {
+            position: absolute;
+            right: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--gray);
+            font-size: 16px;
+        }
+        .input-group input {
+            width: 100%;
+            padding: 14px 42px 14px 18px;
+            background: var(--dark);
+            border: 1px solid rgba(255, 255, 255, 0.04);
+            border-radius: 12px;
+            color: var(--white);
+            font-size: 15px;
+            font-family: 'Cairo', sans-serif;
+            transition: var(--transition);
+        }
+        .input-group input:focus {
+            border-color: var(--gold);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.06);
+        }
+        .btn-auth {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, var(--brown), var(--brown-light));
+            color: var(--white);
+            border: none;
+            border-radius: 12px;
+            font-size: 17px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: var(--transition);
+            font-family: 'Cairo', sans-serif;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin-top: 8px;
+        }
+        .btn-auth:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(139, 107, 74, 0.25);
+        }
+        .auth-footer {
+            text-align: center;
+            margin-top: 20px;
+            color: var(--gray);
+            font-size: 14px;
+        }
+        .auth-footer a {
+            color: var(--gold);
+            font-weight: 700;
+            text-decoration: none;
+        }
+        .auth-footer a:hover {
+            text-decoration: underline;
+        }
+        .auth-divider {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin: 18px 0;
+            color: var(--gray);
+            font-size: 13px;
+        }
+        .auth-divider::before,
+        .auth-divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: rgba(255, 255, 255, 0.05);
+        }
+        .back-home {
+            display: inline-block;
+            margin-top: 12px;
+            color: var(--white-dim);
+            text-decoration: none;
+            font-size: 13px;
+            transition: var(--transition);
+        }
+        .back-home:hover {
+            color: var(--gold);
+        }
+        #loginError {
+            color: #ff6b6b;
+            font-size: 13px;
+            text-align: center;
+            margin-top: 8px;
+            display: none;
+        }
+        .logo-center {
+            text-align: center;
+            margin-bottom: 24px;
+        }
+        .logo-center .logo {
+            font-size: 28px;
+            font-weight: 900;
+        }
+        .logo-center .logo span {
+            color: var(--gold);
+        }
+        .logo-center .logo .logo-icon {
+            color: var(--gold);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="auth-page-solo">
+        <div class="auth-box-solo">
+            
+            <div class="logo-center">
+                <div class="logo">
+                    <span class="logo-icon">◆</span>
+                    KBS <span>FASHION</span>
+                </div>
+            </div>
+
+            <div class="auth-header">
+                <h2>مرحباً بعودتك 👋</h2>
+                <p>سجل الدخول إلى حسابك</p>
+            </div>
+
+            <form id="loginForm" onsubmit="handleLoginPage(event)">
+                <div class="input-group">
+                    <i class="fas fa-envelope"></i>
+                    <input type="text" id="loginEmail" placeholder="البريد الإلكتروني" required />
+                </div>
+                <div class="input-group">
+                    <i class="fas fa-lock"></i>
+                    <input type="password" id="loginPassword" placeholder="كلمة السر" required />
+                </div>
+                
+                <div id="loginError"></div>
+                
+                <button type="submit" class="btn-auth">
+                    <i class="fas fa-sign-in-alt"></i> تسجيل الدخول
+                </button>
+            </form>
+
+            <div class="auth-divider">أو</div>
+
+            <div class="auth-footer">
+                ليس لديك حساب؟ <a href="register.html">إنشاء حساب جديد</a>
+            </div>
+
+            <div style="text-align:center; margin-top:12px;">
+                <a href="index.html" class="back-home">
+                    <i class="fas fa-arrow-right"></i> العودة للرئيسية
+                </a>
+            </div>
+
+            <div style="text-align:center; margin-top:16px; color:var(--gray); font-size:12px;">
+                ✧ حساب خاص بالمصممين فقط ✧
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ============================================================
+        // LOGIN PAGE
+        // ============================================================
+        const ADMIN_EMAIL = 'kbs@kbs.com';
+        const ADMIN_PASSWORD = 'kbs';
+        const USERS_KEY = 'kbs_users';
+
+        function handleLoginPage(e) {
+    e.preventDefault();
+    
+    const identifier = document.getElementById('loginEmail').value.trim();
+    const password = document.getElementById('loginPassword').value.trim();
+    const errorDiv = document.getElementById('loginError');
+    errorDiv.style.display = 'none';
+
+    if (!identifier || !password) {
+        errorDiv.style.display = 'block';
+        errorDiv.textContent = '⚠️ يرجى ملء جميع الحقول';
+        return;
+    }
+
+    // استخدام API للتسجيل
+    window.loginUser(identifier, password)
+        .then(() => {
+            window.location.href = 'index.html';
+        })
+        .catch(err => {
+            errorDiv.style.display = 'block';
+            errorDiv.textContent = '⚠️ ' + (err.response?.data?.error || 'فشل تسجيل الدخول');
+        });
+}
+    </script>
+
+</body>
+</html>
