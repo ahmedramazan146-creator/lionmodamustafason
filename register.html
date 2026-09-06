@@ -2,6 +2,14 @@
 <html lang="ar" dir="rtl">
 <head>
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script>
+        // ============================================================
+        // تحديد رابط API
+        // ============================================================
+        const API_URL = window.location.hostname === 'localhost' 
+            ? 'http://localhost:5000/api' 
+            : 'https://lionmoda.onrender.com/api';
+    </script>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>KBS FASHION | إنشاء حساب</title>
@@ -237,53 +245,62 @@
         const USERS_KEY = 'kbs_users';
 
         function handleRegisterPage(e) {
-    e.preventDefault();
-    
-    const name = document.getElementById('regName').value.trim();
-    const email = document.getElementById('regEmail').value.trim();
-    const phone = document.getElementById('regPhone').value.trim();
-    const password = document.getElementById('regPassword').value;
-    const confirm = document.getElementById('regConfirm').value;
-    
-    const errorDiv = document.getElementById('registerError');
-    const successDiv = document.getElementById('registerSuccess');
-    errorDiv.style.display = 'none';
-    successDiv.style.display = 'none';
+            e.preventDefault();
+            
+            const name = document.getElementById('regName').value.trim();
+            const email = document.getElementById('regEmail').value.trim();
+            const phone = document.getElementById('regPhone').value.trim();
+            const password = document.getElementById('regPassword').value;
+            const confirm = document.getElementById('regConfirm').value;
+            
+            const errorDiv = document.getElementById('registerError');
+            const successDiv = document.getElementById('registerSuccess');
+            errorDiv.style.display = 'none';
+            successDiv.style.display = 'none';
 
-    if (!name) {
-        errorDiv.style.display = 'block';
-        errorDiv.textContent = '⚠️ يرجى إدخال الاسم الكامل';
-        return;
-    }
-    if (!email) {
-        errorDiv.style.display = 'block';
-        errorDiv.textContent = '⚠️ يرجى إدخال البريد الإلكتروني';
-        return;
-    }
-    if (password.length < 8) {
-        errorDiv.style.display = 'block';
-        errorDiv.textContent = '⚠️ كلمة السر يجب أن تكون 8 أحرف على الأقل';
-        return;
-    }
-    if (password !== confirm) {
-        errorDiv.style.display = 'block';
-        errorDiv.textContent = '⚠️ كلمة السر غير متطابقة';
-        return;
-    }
+            if (!name) {
+                errorDiv.style.display = 'block';
+                errorDiv.textContent = '⚠️ يرجى إدخال الاسم الكامل';
+                return;
+            }
+            if (!email) {
+                errorDiv.style.display = 'block';
+                errorDiv.textContent = '⚠️ يرجى إدخال البريد الإلكتروني';
+                return;
+            }
+            if (password.length < 8) {
+                errorDiv.style.display = 'block';
+                errorDiv.textContent = '⚠️ كلمة السر يجب أن تكون 8 أحرف على الأقل';
+                return;
+            }
+            if (password !== confirm) {
+                errorDiv.style.display = 'block';
+                errorDiv.textContent = '⚠️ كلمة السر غير متطابقة';
+                return;
+            }
 
-    window.registerUser({ name, email, phone, password })
-        .then(() => {
-            successDiv.style.display = 'block';
-            successDiv.textContent = `✅ مرحباً ${name}! تم إنشاء الحساب بنجاح`;
-            setTimeout(() => {
-                window.location.href = 'index.html';
-            }, 1500);
-        })
-        .catch(err => {
-            errorDiv.style.display = 'block';
-            errorDiv.textContent = '⚠️ ' + (err.response?.data?.error || 'فشل إنشاء الحساب');
-        });
-}
+            // استخدام API_URL المحدد
+            axios.post(API_URL + '/auth/register', { 
+                name, 
+                email, 
+                phone, 
+                password 
+            })
+            .then(response => {
+                const data = response.data;
+                localStorage.setItem('kbs_token', data.token);
+                localStorage.setItem('kbs_user', JSON.stringify(data.user));
+                successDiv.style.display = 'block';
+                successDiv.textContent = `✅ مرحباً ${name}! تم إنشاء الحساب بنجاح`;
+                setTimeout(() => {
+                    window.location.href = 'index.html';
+                }, 1500);
+            })
+            .catch(err => {
+                errorDiv.style.display = 'block';
+                errorDiv.textContent = '⚠️ ' + (err.response?.data?.error || 'فشل إنشاء الحساب');
+            });
+        }
     </script>
 
 </body>
