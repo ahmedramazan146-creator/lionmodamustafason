@@ -20,7 +20,7 @@ app.use(cors());
 app.use(express.json({ limit: '50mb' }));
 
 // ============================================================
-// SERVE STATIC FILES - تقديم الملفات الثابتة (HTML, CSS, JS)
+// SERVE STATIC FILES
 // ============================================================
 app.use(express.static(path.join(__dirname, '/')));
 app.get('/', (req, res) => {
@@ -45,7 +45,10 @@ mongoose.connect(process.env.MONGODB_URI, {
 const productSchema = new mongoose.Schema({
     name: { type: String, required: true },
     price: { type: Number, required: true },
-    image: { type: String, required: true },
+    images: { type: [String], required: true },
+    coverImage: { type: String, required: true },
+    video: { type: String, default: '' },
+    hasVideo: { type: Boolean, default: false },
     colors: { type: [String], required: true },
     sizes: { type: [String], required: true },
     createdAt: { type: Number, default: Date.now }
@@ -123,7 +126,6 @@ initAdmin();
 
 // ---------- PRODUCTS ----------
 
-// Get all products
 app.get('/api/products', async (req, res) => {
     try {
         const products = await Product.find().sort({ createdAt: -1 });
@@ -133,17 +135,21 @@ app.get('/api/products', async (req, res) => {
     }
 });
 
-// Add product (admin only)
 app.post('/api/products', verifyToken, isAdmin, async (req, res) => {
     try {
-        const { name, price, image, colors, sizes } = req.body;
-        if (!name || !price || !image || !colors || !sizes) {
-            return res.status(400).json({ error: 'جميع الحقول مطلوبة' });
+        const { name, price, images, coverImage, video, hasVideo, colors, sizes } = req.body;
+        
+        if (!name || !price || !images || images.length === 0 || !coverImage || !colors || !sizes) {
+            return res.status(400).json({ error: 'جميع الحقول مطلوبة بما في ذلك صورة واحدة على الأقل' });
         }
+        
         const product = await Product.create({
             name,
             price,
-            image,
+            images,
+            coverImage,
+            video: video || '',
+            hasVideo: hasVideo || false,
             colors,
             sizes,
             createdAt: Date.now()
@@ -154,7 +160,6 @@ app.post('/api/products', verifyToken, isAdmin, async (req, res) => {
     }
 });
 
-// Delete product (admin only)
 app.delete('/api/products/:id', verifyToken, isAdmin, async (req, res) => {
     try {
         const product = await Product.findByIdAndDelete(req.params.id);
@@ -169,12 +174,10 @@ app.delete('/api/products/:id', verifyToken, isAdmin, async (req, res) => {
 
 // ---------- AUTH ----------
 
-// Register
 app.post('/api/auth/register', async (req, res) => {
     try {
         const { name, email, phone, password } = req.body;
         
-        // منع استخدام بريد المشرف
         if (email === process.env.ADMIN_EMAIL) {
             return res.status(400).json({ error: 'هذا البريد محجوز للإدارة' });
         }
@@ -208,7 +211,6 @@ app.post('/api/auth/register', async (req, res) => {
     }
 });
 
-// Login
 app.post('/api/auth/login', async (req, res) => {
     try {
         const { email, password } = req.body;
@@ -239,7 +241,6 @@ app.post('/api/auth/login', async (req, res) => {
     }
 });
 
-// Get current user
 app.get('/api/auth/me', verifyToken, async (req, res) => {
     try {
         const user = await User.findById(req.user.id).select('-password');
