@@ -92,12 +92,10 @@
     HERO SECTION - القسم الرئيسي الفاخر جداً
     ============================================================ -->
     <section id="home" class="hero">
-        <!-- خلفية متدرجة متحركة بألوان متعددة -->
         <div class="hero-gradient"></div>
         <div class="hero-gradient-2"></div>
         <div class="hero-gradient-3"></div>
         
-        <!-- العناصر المتطايرة الكثيرة -->
         <div class="floating-elements">
             <div class="floating-element"></div>
             <div class="floating-element"></div>
@@ -116,7 +114,6 @@
             <div class="floating-element"></div>
         </div>
         
-        <!-- النجوم المتطايرة -->
         <div class="floating-stars">
             <span class="star">✦</span>
             <span class="star">✦</span>
@@ -140,7 +137,6 @@
             <span class="star">✦</span>
         </div>
         
-        <!-- المحتوى -->
         <div class="hero-content">
             <div class="hero-badge">
                 <i class="fas fa-star"></i> تشكيلة الشتاء 2026
@@ -176,15 +172,12 @@
             </div>
         </div>
         
-        <!-- صورة الكنزة المتحركة الفاخرة -->
         <div class="hero-image">
             <div class="hero-image-wrapper">
-                <!-- الخلفية الزهري اللامعة -->
                 <div class="hero-image-glow-bg"></div>
                 <div class="hero-image-glow-bg-2"></div>
                 <div class="hero-image-glow-bg-3"></div>
                 
-                <!-- البريق واللمعان -->
                 <div class="hero-image-sparkles">
                     <div class="sparkle"></div>
                     <div class="sparkle"></div>
@@ -204,16 +197,16 @@
                     <div class="sparkle"></div>
                 </div>
                 
-                <!-- الكنزة المتحركة ثلاثية الأبعاد -->
-                <!-- استبدال الإيموجي بالصورة -->
-<div class="sweater-emoji">
-    <img src="https://i.ibb.co/zh7fWy9s/Chat-GPT-Image-7-Eyl-2026-00-12-17.png" 
-         alt="ليون موضة" 
-         style="width:250px;height:250px;object-fit:contain;filter:drop-shadow(0 20px 60px rgba(255,45,117,0.3));" />
-</div>
+                <div class="sweater-container">
+                    <div class="sweater-3d">
+                        <div class="sweater-emoji">
+                            <img src="https://i.ibb.co/zh7fWy9s/Chat-GPT-Image-7-Eyl-2026-00-12-17.png" 
+                                 alt="ليون موضة" 
+                                 class="hero-image-img" />
+                        </div>
+                    </div>
                 </div>
                 
-                <!-- حلقات ضوئية حول الكنزة -->
                 <div class="sweater-ring ring-1"></div>
                 <div class="sweater-ring ring-2"></div>
                 <div class="sweater-ring ring-3"></div>
@@ -298,20 +291,26 @@
                     <input type="text" id="productSizes" placeholder="المقاسات (مفصولة بفاصلة)" required />
                 </div>
                 
-                <!-- بدلاً من حقل رابط الفيديو، استخدم هذا -->
-<div class="input-group file-upload">
-    <i class="fas fa-video"></i>
-    <label for="productVideoInput" class="file-label">
-        <i class="fas fa-cloud-upload-alt"></i> اختر فيديو المنتج (اختياري)
-    </label>
-    <input type="file" id="productVideoInput" accept="video/*" />
-    <div id="videoPreview" class="video-preview"></div>
-</div>
+                <!-- ===== حقل رفع الصور المتعددة ===== -->
+                <div class="input-group file-upload">
+                    <i class="fas fa-images"></i>
+                    <label for="productImagesInput" class="file-label">
+                        <i class="fas fa-cloud-upload-alt"></i> اختر صور المنتج (يمكن اختيار عدة صور)
+                    </label>
+                    <input type="file" id="productImagesInput" accept="image/*" multiple required />
+                    <div id="imagePreview" class="image-preview"></div>
+                </div>
 
-                <div class="input-group">
+                <!-- ===== حقل رفع الفيديو المحلي (بدلاً من رابط YouTube) ===== -->
+                <div class="input-group file-upload">
                     <i class="fas fa-video"></i>
-                    <input type="text" id="productVideo" placeholder="رابط فيديو المنتج (YouTube - اختياري)" />
-                    <div id="videoPreview" class="video-preview"></div>
+                    <label for="productVideoInput" class="file-label">
+                        <i class="fas fa-cloud-upload-alt"></i> اختر فيديو المنتج (اختياري - MP4, WebM, AVI)
+                    </label>
+                    <input type="file" id="productVideoInput" accept="video/*" />
+                    <div id="videoPreview" class="video-preview">
+                        <span style="color:#888;font-size:14px;">📹 لم يتم اختيار فيديو</span>
+                    </div>
                 </div>
                 
                 <button type="submit" class="btn-auth">
@@ -325,6 +324,21 @@
             </button>
         </div>
     </section>
+
+    <!-- ============================================================
+    LIGHTBOX - عرض الصور بشكل مكبر
+    ============================================================ -->
+    <div id="lightbox" class="lightbox" onclick="closeLightbox()">
+        <span class="lightbox-close" onclick="closeLightbox()">✕</span>
+        <div class="lightbox-content">
+            <img id="lightboxImg" src="" alt="صورة مكبرة" />
+        </div>
+        <div class="lightbox-nav">
+            <button class="lightbox-btn prev" onclick="changeLightboxImage(-1)">‹</button>
+            <button class="lightbox-btn next" onclick="changeLightboxImage(1)">›</button>
+        </div>
+        <div class="lightbox-counter" id="lightboxCounter"></div>
+    </div>
 
     <!-- ============================================================
     CART SIDEBAR - سلة التسوق
@@ -368,10 +382,6 @@
                 <a href="#" onclick="showSection('products')">المنتجات</a>
                 <a href="#" onclick="showSection('about')">من نحن</a>
             </div>
-            <div class="footer-contact">
-    <span>📧 mustooso123@gmail.com</span>
-    <span>📞 +90 537 583 5691</span>
-</div>
         </div>
         <div class="footer-bottom">
             <p>© 2026 KBS FASHION. جميع الحقوق محفوظة</p>
