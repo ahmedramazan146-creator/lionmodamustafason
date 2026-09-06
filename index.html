@@ -298,14 +298,15 @@
                     <input type="text" id="productSizes" placeholder="المقاسات (مفصولة بفاصلة)" required />
                 </div>
                 
-                <div class="input-group file-upload">
-                    <i class="fas fa-images"></i>
-                    <label for="productImagesInput" class="file-label">
-                        <i class="fas fa-cloud-upload-alt"></i> اختر صور المنتج (يمكن اختيار عدة صور)
-                    </label>
-                    <input type="file" id="productImagesInput" accept="image/*" multiple required />
-                    <div id="imagePreview" class="image-preview"></div>
-                </div>
+                <!-- بدلاً من حقل رابط الفيديو، استخدم هذا -->
+<div class="input-group file-upload">
+    <i class="fas fa-video"></i>
+    <label for="productVideoInput" class="file-label">
+        <i class="fas fa-cloud-upload-alt"></i> اختر فيديو المنتج (اختياري)
+    </label>
+    <input type="file" id="productVideoInput" accept="video/*" />
+    <div id="videoPreview" class="video-preview"></div>
+</div>
 
                 <div class="input-group">
                     <i class="fas fa-video"></i>
