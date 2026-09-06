@@ -24,8 +24,9 @@
     ============================================================ -->
     <div id="preloader">
         <div class="loader-wrapper">
-            <div class="loader-ring"></div>
-            <div class="loader-ring-2"></div>
+            <div class="loader-ring">
+                <div class="loader-ring-2"></div>
+            </div>
             <div class="loader-text">ليون</div>
             <div class="loader-subtext">موضة</div>
         </div>
@@ -64,7 +65,7 @@
                 <a href="#" id="adminLink" onclick="showAdminPanel()" style="display:none;">
                     <i class="fas fa-crown"></i> إدارة
                 </a>
-                <a href="#" id="logoutMobileLink" onclick="logoutUser()" style="display:none; color:#ff6b6b;">
+                <a href="#" id="logoutMobileLink" onclick="logoutUser()" style="display:none; color:#ef4444;">
                     <i class="fas fa-sign-out-alt"></i> تسجيل الخروج
                 </a>
             </div>
@@ -88,13 +89,62 @@
     </nav>
 
     <!-- ============================================================
-    HERO SECTION - القسم الرئيسي الفاخر
+    HERO SECTION - القسم الرئيسي الفاخر جداً
     ============================================================ -->
     <section id="home" class="hero">
+        <!-- خلفية متدرجة متحركة بألوان متعددة -->
         <div class="hero-gradient"></div>
+        <div class="hero-gradient-2"></div>
+        <div class="hero-gradient-3"></div>
+        
+        <!-- العناصر المتطايرة الكثيرة -->
+        <div class="floating-elements">
+            <div class="floating-element"></div>
+            <div class="floating-element"></div>
+            <div class="floating-element"></div>
+            <div class="floating-element"></div>
+            <div class="floating-element"></div>
+            <div class="floating-element"></div>
+            <div class="floating-element"></div>
+            <div class="floating-element"></div>
+            <div class="floating-element"></div>
+            <div class="floating-element"></div>
+            <div class="floating-element"></div>
+            <div class="floating-element"></div>
+            <div class="floating-element"></div>
+            <div class="floating-element"></div>
+            <div class="floating-element"></div>
+        </div>
+        
+        <!-- النجوم المتطايرة -->
+        <div class="floating-stars">
+            <span class="star">✦</span>
+            <span class="star">✦</span>
+            <span class="star">✦</span>
+            <span class="star">✦</span>
+            <span class="star">✦</span>
+            <span class="star">✦</span>
+            <span class="star">✦</span>
+            <span class="star">✦</span>
+            <span class="star">✦</span>
+            <span class="star">✦</span>
+            <span class="star">✦</span>
+            <span class="star">✦</span>
+            <span class="star">✦</span>
+            <span class="star">✦</span>
+            <span class="star">✦</span>
+            <span class="star">✦</span>
+            <span class="star">✦</span>
+            <span class="star">✦</span>
+            <span class="star">✦</span>
+            <span class="star">✦</span>
+        </div>
+        
+        <!-- المحتوى -->
         <div class="hero-content">
             <div class="hero-badge">
                 <i class="fas fa-star"></i> تشكيلة الشتاء 2026
+                <i class="fas fa-star"></i>
             </div>
             <h1>
                 <span class="gradient-text">ليون</span> موضة
@@ -125,10 +175,48 @@
                 </div>
             </div>
         </div>
+        
+        <!-- صورة الكنزة المتحركة الفاخرة -->
         <div class="hero-image">
-            <div class="hero-image-placeholder">
-                <span>◆</span>
-                <div class="hero-image-glow"></div>
+            <div class="hero-image-wrapper">
+                <!-- الخلفية الزهري اللامعة -->
+                <div class="hero-image-glow-bg"></div>
+                <div class="hero-image-glow-bg-2"></div>
+                <div class="hero-image-glow-bg-3"></div>
+                
+                <!-- البريق واللمعان -->
+                <div class="hero-image-sparkles">
+                    <div class="sparkle"></div>
+                    <div class="sparkle"></div>
+                    <div class="sparkle"></div>
+                    <div class="sparkle"></div>
+                    <div class="sparkle"></div>
+                    <div class="sparkle"></div>
+                    <div class="sparkle"></div>
+                    <div class="sparkle"></div>
+                    <div class="sparkle"></div>
+                    <div class="sparkle"></div>
+                    <div class="sparkle"></div>
+                    <div class="sparkle"></div>
+                    <div class="sparkle"></div>
+                    <div class="sparkle"></div>
+                    <div class="sparkle"></div>
+                    <div class="sparkle"></div>
+                </div>
+                
+                <!-- الكنزة المتحركة ثلاثية الأبعاد -->
+                <!-- استبدال الإيموجي بالصورة -->
+<div class="sweater-emoji">
+    <img src="https://i.ibb.co/zh7fWy9s/Chat-GPT-Image-7-Eyl-2026-00-12-17.png" 
+         alt="ليون موضة" 
+         style="width:250px;height:250px;object-fit:contain;filter:drop-shadow(0 20px 60px rgba(255,45,117,0.3));" />
+</div>
+                </div>
+                
+                <!-- حلقات ضوئية حول الكنزة -->
+                <div class="sweater-ring ring-1"></div>
+                <div class="sweater-ring ring-2"></div>
+                <div class="sweater-ring ring-3"></div>
             </div>
         </div>
     </section>
@@ -189,7 +277,7 @@
     ============================================================ -->
     <section id="adminPanel" class="admin-section" style="display:none;">
         <div class="admin-container">
-            <h2><i class="fas fa-crown" style="color:var(--gold);"></i> لوحة <span class="gradient-text">الإدارة</span></h2>
+            <h2><i class="fas fa-crown" style="color:var(--secondary);"></i> لوحة <span class="gradient-text">الإدارة</span></h2>
             <p>أضف منتجاً جديداً إلى المتجر</p>
             
             <form id="addProductForm" onsubmit="addProduct(event)">
@@ -211,12 +299,18 @@
                 </div>
                 
                 <div class="input-group file-upload">
-                    <i class="fas fa-image"></i>
-                    <label for="productImageInput" class="file-label">
-                        <i class="fas fa-cloud-upload-alt"></i> اختر صورة المنتج
+                    <i class="fas fa-images"></i>
+                    <label for="productImagesInput" class="file-label">
+                        <i class="fas fa-cloud-upload-alt"></i> اختر صور المنتج (يمكن اختيار عدة صور)
                     </label>
-                    <input type="file" id="productImageInput" accept="image/*" required />
+                    <input type="file" id="productImagesInput" accept="image/*" multiple required />
                     <div id="imagePreview" class="image-preview"></div>
+                </div>
+
+                <div class="input-group">
+                    <i class="fas fa-video"></i>
+                    <input type="text" id="productVideo" placeholder="رابط فيديو المنتج (YouTube - اختياري)" />
+                    <div id="videoPreview" class="video-preview"></div>
                 </div>
                 
                 <button type="submit" class="btn-auth">
@@ -237,7 +331,7 @@
     <div class="cart-overlay" id="cartOverlay" onclick="toggleCart()"></div>
     <div class="cart-page" id="cartPage">
         <div class="cart-header">
-            <h2><i class="fas fa-shopping-bag" style="color:var(--gold);"></i> سلة <span class="gradient-text">التسوق</span></h2>
+            <h2><i class="fas fa-shopping-bag" style="color:var(--secondary);"></i> سلة <span class="gradient-text">التسوق</span></h2>
             <span class="close-cart" onclick="toggleCart()">✕</span>
         </div>
         <div id="cartItems">
@@ -273,12 +367,10 @@
                 <a href="#" onclick="showSection('products')">المنتجات</a>
                 <a href="#" onclick="showSection('about')">من نحن</a>
             </div>
-            <div class="footer-social">
-                <i class="fab fa-instagram"></i>
-                <i class="fab fa-facebook"></i>
-                <i class="fab fa-twitter"></i>
-                <i class="fab fa-youtube"></i>
-            </div>
+            <div class="footer-contact">
+    <span>📧 mustooso123@gmail.com</span>
+    <span>📞 +90 537 583 5691</span>
+</div>
         </div>
         <div class="footer-bottom">
             <p>© 2026 KBS FASHION. جميع الحقوق محفوظة</p>
