@@ -2,6 +2,14 @@
 <html lang="ar" dir="rtl">
 <head>
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script>
+        // ============================================================
+        // تحديد رابط API
+        // ============================================================
+        const API_URL = window.location.hostname === 'localhost' 
+            ? 'http://localhost:5000/api' 
+            : 'https://lionmoda.onrender.com/api';
+    </script>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>KBS FASHION | تسجيل الدخول</title>
@@ -218,29 +226,35 @@
         const USERS_KEY = 'kbs_users';
 
         function handleLoginPage(e) {
-    e.preventDefault();
-    
-    const identifier = document.getElementById('loginEmail').value.trim();
-    const password = document.getElementById('loginPassword').value.trim();
-    const errorDiv = document.getElementById('loginError');
-    errorDiv.style.display = 'none';
+            e.preventDefault();
+            
+            const identifier = document.getElementById('loginEmail').value.trim();
+            const password = document.getElementById('loginPassword').value.trim();
+            const errorDiv = document.getElementById('loginError');
+            errorDiv.style.display = 'none';
 
-    if (!identifier || !password) {
-        errorDiv.style.display = 'block';
-        errorDiv.textContent = '⚠️ يرجى ملء جميع الحقول';
-        return;
-    }
+            if (!identifier || !password) {
+                errorDiv.style.display = 'block';
+                errorDiv.textContent = '⚠️ يرجى ملء جميع الحقول';
+                return;
+            }
 
-    // استخدام API للتسجيل
-    window.loginUser(identifier, password)
-        .then(() => {
-            window.location.href = 'index.html';
-        })
-        .catch(err => {
-            errorDiv.style.display = 'block';
-            errorDiv.textContent = '⚠️ ' + (err.response?.data?.error || 'فشل تسجيل الدخول');
-        });
-}
+            // استخدام API_URL المحدد
+            axios.post(API_URL + '/auth/login', { 
+                email: identifier, 
+                password: password 
+            })
+            .then(response => {
+                const data = response.data;
+                localStorage.setItem('kbs_token', data.token);
+                localStorage.setItem('kbs_user', JSON.stringify(data.user));
+                window.location.href = 'index.html';
+            })
+            .catch(err => {
+                errorDiv.style.display = 'block';
+                errorDiv.textContent = '⚠️ ' + (err.response?.data?.error || 'فشل تسجيل الدخول');
+            });
+        }
     </script>
 
 </body>
